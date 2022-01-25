@@ -1,0 +1,4 @@
+_target_: src.vae.VAE # class location
+input_dim: 784
+hidden_dim1: 400
+hidden_dim2: 20

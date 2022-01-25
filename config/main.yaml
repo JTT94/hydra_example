@@ -1,0 +1,26 @@
+
+defaults:
+  # GENERAL #
+  - _self_  
+  - experiment: vae_example
+  - optim: adam
+  
+
+device:
+  _target_: src.vae.VAE # class location
+  pin_memory: True
+  num_workers: 1
+  device: 'cuda'
+
+
+now: ${now:%Y-%m-%d}/${now:%H-%M-%S}
+
+seed: 0
+PROJECT_NAME: riemannian_diffusion
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: ${work_dir}/data/
+ckpt_dir: ckpt
+logdir: ${work_dir}/results
+

@@ -1,0 +1,7 @@
+_target_: torchvision.datasets.MNIST
+_convert_: partial
+root: '../data'
+train: True
+download: True
+transform: transforms.ToTensor())
+
