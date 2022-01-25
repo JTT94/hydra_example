@@ -1,18 +1,23 @@
 
 import torch
+import os
 import hydra
 from hydra.utils import instantiate, get_class, call
 import omegaconf
 from src.loss import loss_function
 from torchvision.utils import save_image
-
+from torchvision import transforms
+from pathlib import Path
 
 def run(cfg: omegaconf):
+    Path(cfg.logdir).mkdir(parents=True, exist_ok=True) 
     device = cfg.device.device
-    dataset = instantiate(cfg.dataset)
-
-    optimizer = instantiate(cfg.optim)
+    dataset = instantiate(cfg.dataset, transform=transforms.ToTensor())
     model = instantiate(cfg.model).to(device)
+    optimizer = get_class(cfg.optim._target_)(model.parameters(), 
+                                     lr = cfg.optim.lr
+                                     )
+    
 
     kwargs = {'num_workers': cfg.device.num_workers, 'pin_memory': cfg.device.pin_memory} 
 
@@ -34,7 +39,7 @@ def run(cfg: omegaconf):
             loss.backward()
             train_loss += loss.item()
             optimizer.step()
-            if batch_idx % args.log_interval == 0:
+            if batch_idx % cfg.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, batch_idx * len(data), len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
@@ -47,10 +52,10 @@ def run(cfg: omegaconf):
     for epoch in range(1, cfg.training.num_epochs + 1):
         train(epoch)
         with torch.no_grad():
-            sample = torch.randn(64, 20).to(cfg,device)
+            sample = torch.randn(64, 20).to(device)
             sample = model.decode(sample).cpu()
             save_image(sample.view(64, 1, 28, 28),
-                       'results/sample_' + str(epoch) + '.png')
+                       f'{cfg.logdir}/sample_' + str(epoch) + '.png')
 
     
     

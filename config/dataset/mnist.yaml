@@ -3,5 +3,4 @@ _convert_: partial
 root: '../data'
 train: True
 download: True
-transform: transforms.ToTensor())
 
